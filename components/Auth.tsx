@@ -1,6 +1,6 @@
 'use client'
 
-import { FormEvent, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabaseClient'
 
@@ -36,8 +36,7 @@ export default function Auth() {
     }
   }, [])
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
+  const handleSignUp = async () => {
     setLoading(true)
     setError(null)
     setSuccess(null)
@@ -48,26 +47,43 @@ export default function Auth() {
       return
     }
 
-    if (mode === 'register') {
-      const { error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-      })
-      if (signUpError) {
-        setError(signUpError.message)
-      } else {
-        setSuccess('Registrierung erfolgreich. Bitte E-Mail bestätigen.')
-      }
+    const { error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+    })
+    if (signUpError) {
+      console.error('Signup error:', signUpError.message)
+      setError(signUpError.message)
+      alert(signUpError.message)
     } else {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
-      if (signInError) {
-        setError(signInError.message)
-      } else {
-        setSuccess('Login erfolgreich.')
-      }
+      setSuccess('Registrierung erfolgreich. Bitte E-Mail bestätigen.')
+      alert('Check your email for confirmation!')
+    }
+
+    setLoading(false)
+  }
+
+  const handleLogin = async () => {
+    setLoading(true)
+    setError(null)
+    setSuccess(null)
+
+    if (!email || !password) {
+      setError('Bitte E-Mail und Passwort eingeben.')
+      setLoading(false)
+      return
+    }
+
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+    if (signInError) {
+      console.error('Login error:', signInError.message)
+      setError(signInError.message)
+      alert(signInError.message)
+    } else {
+      setSuccess('Login erfolgreich.')
     }
 
     setLoading(false)
@@ -93,7 +109,7 @@ export default function Auth() {
 
       <div className="rounded-xl border border-luxury-anthracite/50 bg-luxury-charcoal/80 p-4">
         {!session ? (
-          <form onSubmit={handleSubmit} className="space-y-3">
+          <div className="space-y-3">
             <h2 className="text-lg font-bold text-white">
               {mode === 'login' ? 'Login' : 'Registrierung'}
             </h2>
@@ -117,13 +133,25 @@ export default function Auth() {
             {error && <p className="text-sm text-red-400">{error}</p>}
             {success && <p className="text-sm text-green-400">{success}</p>}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="rounded-lg bg-primary-600 px-4 py-2 font-medium text-white disabled:opacity-60"
-            >
-              {loading ? 'Lädt...' : mode === 'login' ? 'Login' : 'Registrieren'}
-            </button>
+            {mode === 'login' ? (
+              <button
+                type="button"
+                onClick={handleLogin}
+                disabled={loading}
+                className="rounded-lg bg-primary-600 px-4 py-2 font-medium text-white disabled:opacity-60"
+              >
+                {loading ? 'Lädt...' : 'Login'}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleSignUp}
+                disabled={loading}
+                className="rounded-lg bg-primary-600 px-4 py-2 font-medium text-white disabled:opacity-60"
+              >
+                {loading ? 'Lädt...' : 'Registrieren'}
+              </button>
+            )}
 
             <button
               type="button"
@@ -134,7 +162,7 @@ export default function Auth() {
                 ? 'Noch keinen Account? Registrieren'
                 : 'Schon einen Account? Login'}
             </button>
-          </form>
+          </div>
         ) : (
           <div className="space-y-3">
             <p className="text-white">
