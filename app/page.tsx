@@ -1,6 +1,7 @@
 'use client'
 
 import Navigation from '@/components/Navigation'
+import Auth from '@/components/Auth'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
@@ -55,6 +56,8 @@ export default function Home() {
     <main className="min-h-screen bg-gradient-to-br from-luxury-dark via-luxury-charcoal to-luxury-dark">
       <Navigation />
       <div className="container mx-auto px-4 py-12">
+        <Auth />
+
         <div className="text-center mb-12">
           <h1 className="text-6xl font-bold text-white mb-4 bg-gradient-to-r from-white via-gold-300 to-primary-400 bg-clip-text text-transparent">
             Willkommen bei StockEx
